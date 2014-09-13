@@ -26,3 +26,5 @@ _testmain.go
 scripts/.bundle
 scripts/vendor/bundle
 *.sublime-workspace
+
+*.DS_Store

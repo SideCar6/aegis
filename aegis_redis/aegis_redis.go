@@ -18,7 +18,7 @@ func errHndlr(err error) {
   }
 }
 
-func Test() {
+func Test() []string {
   c, err := redis.DialTimeout("tcp", os.Getenv("REDIS_PORT_6379_TCP_ADDR") + ":" + os.Getenv("REDIS_PORT_6379_TCP_PORT"), time.Duration(10)*time.Second)
   errHndlr(err)
   defer c.Close()
@@ -75,6 +75,8 @@ func Test() {
   for i := range mylist {
     fmt.Println("mylist: ", mylist[i])
   }
+
+  return mylist
 
   //* Hash handling
 
