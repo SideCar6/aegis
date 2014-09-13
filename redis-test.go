@@ -1,7 +1,13 @@
 package main
 
-import "./aegis_redis"
+import (
+  "./aegis_redis"
+  "fmt"
+)
 
 func main() {
-  aegis_redis.Test()
+  mylist := aegis_redis.Test()
+  for i := range mylist {
+    fmt.Println("mylist: ", mylist[i])
+  }
 }
