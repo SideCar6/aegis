@@ -22,3 +22,7 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+scripts/.bundle
+scripts/vendor/bundle
+*.sublime-workspace
