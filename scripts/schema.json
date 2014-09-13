@@ -1,0 +1,35 @@
+{
+  key: {
+    timestamp: <int>,
+    elapsed: <int seconds>,
+    tag: <string event name/tag>,
+    meta: {
+      <arbitrary JSON>,
+    },
+  }
+}
+
+{
+  "stats:boxes:load": {
+    "timestamp": 123344556677,
+    "type": "percentage",
+    "value": 2.3,
+    "tag": "box:master-server",
+    "meta": {
+      "ip": "127.0.0.1",
+      "hostname": "master-server-02",
+    }
+  }
+}
+
+{
+  "/api/v1/users/1": {
+    "timstamp": 12345465678,
+    "elapsed": 20,
+    "tag": "query1",
+    "meta": {
+      "query": "SELECT name, email FROM users WHERE name = 'Jack'",
+      "host": "127.0.01",
+    }
+  }
+}
