@@ -6,9 +6,11 @@ import (
 )
 
 func main() {
-  mylist := aegis_redis.Test()
+  fmt.Println("ALL KEYS: ")
+  mykeys := aegis_redis.GetKeys()
 
-  for i := range mylist {
-    fmt.Println(mylist[i])
+  for i := range mykeys {
+    fmt.Println(mykeys[i])
+    aegis_redis.GetList(mykeys[i], -3, -1)
   }
 }
