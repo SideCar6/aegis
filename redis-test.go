@@ -7,7 +7,8 @@ import (
 
 func main() {
   mylist := aegis_redis.Test()
+
   for i := range mylist {
-    fmt.Println("mylist: ", mylist[i])
+    fmt.Println(mylist[i])
   }
 }

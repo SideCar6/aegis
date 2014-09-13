@@ -69,11 +69,11 @@ func Test() []string {
   // errHndlr(r.Err)
 
   mylist := []string{}
-  mylist, err = c.Cmd("lrange", "GET:/api/v1/users/:id", 0, -1).List()
+  mylist, err = c.Cmd("lrange", "GET:/api/v1/users/:id", -10, -1).List()
   errHndlr(err)
 
   for i := range mylist {
-    fmt.Println("mylist: ", mylist[i])
+    fmt.Println(i, mylist[i])
   }
 
   return mylist
