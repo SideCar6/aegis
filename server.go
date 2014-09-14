@@ -27,8 +27,8 @@ func main() {
     return keys.ToJSON()
   })
 
-  m.Get(api_url + "/stats/:key", func () []byte {
-    stats := aegis_redis.GetList(params["key"])
+  m.Get(api_url + "/stats/:key", func (params martini.Params) []byte {
+    stats := aegis_redis.GetList(params["key"], 0, -1)
     return stats.ToJSON()
   })
 

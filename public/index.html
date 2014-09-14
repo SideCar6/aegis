@@ -32,29 +32,31 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/lib/bootstrap.min.js"></script>
     <script>
-      $('#speed').click( function () {
-        var list = $(this).find('ul')[0];
-        $(this).off();
-        $.get('/api/v1/speed', function (data) {
-          $.each(JSON.parse(data), function (i, item) {
-            $(list).append('<li>' + item + '</li>');
-          })
-        });
-      });
+      // $('#speed').click( function () {
+      //   var list = $(this).find('ul')[0];
+      //   $(this).off();
+      //   $.get('/api/v1/speed', function (data) {
+      //     $.each(JSON.parse(data), function (i, item) {
+      //       $(list).append('<li>' + item + '</li>');
+      //     })
+      //   });
+      // });
         
       $.get('/api/v1/keys', function (data) {
         $.each(JSON.parse(data), function (i, key) {
           var id = 'key' + i;
-          $('#keys').append('<li><button type="button" id="' + id + 
-            '" class="btn btn-primary">' + key + '</button><ul></ul></li>');
-          $('#' + id + ' ul').click( function () {
-            var self = $(this);
-            self.off();
-            $.get('/api/v1/stats/' + key, function (data) {
-              $.each(JSON.parse(data), function (i, item) {
-                self.append('<li>' + item + '</li>');
-              });
-            });
+          $('#keys').append('<li class="key" id="' + id + 
+            '"><button type="button" class="btn btn-primary">' + key + '</button><ul></ul></li>');
+        });
+      });
+
+      $('#keys').delegate('li', 'click', function (event) {
+        console.log('li clicked');
+        console.log(event);
+        var list = $(this).find('ul')[0];
+        $.get('/api/v1/stats/' + event.target.id, function (data) {
+          $.each(JSON.parse(data), function (i, item) {
+            list.append('<li>' + item + '</li>');
           });
         });
       });

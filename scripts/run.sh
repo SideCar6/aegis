@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ `uname | grep Darwin | wc -l` -lt 1 ]; then
+if [ `uname | grep Darwin | wc -l` -gt 0 ]; then
   echo '--> Make sure redis is running...'
   bundle --path vendor/bundle
   REDIS_PORT_6379_TCP_ADDR=127.0.01 REDIS_PORT_6379_TCP_PORT=6379 bundle exec ruby redis_loader.rb
