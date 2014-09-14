@@ -20,9 +20,10 @@ loop do
   path = paths[rand(paths.length)]
   elapsed = rand(1000)
   tag = "query-%s" % rand(10)
+  timestamp = (("%s.%s" % [ Time.now.to_i, Time.now.strftime("%L")]).to_f * 1000).round
 
   payload = {
-    timestamp: "%s.%s" % [ Time.now.to_i, Time.now.strftime("%L")],
+    timestamp: timestamp,
     elapsed: elapsed,
     tags: [
       'api_call',
@@ -45,7 +46,7 @@ loop do
     path = "system:load:#{`hostname`.chomp}"
 
     payload = {
-      timestamp: Time.now.to_i,
+      timestamp: timestamp,
       value: `cat /proc/loadavg`.split(" ")[0],
       tags: [
         'system_info',
