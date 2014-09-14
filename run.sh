@@ -9,5 +9,5 @@ docker run \
   -w /gopath/src/github.com/SideCar6/aegis \
   -h GO \
   -p 3000:3000 \
-  jfbrown/golang
-
+  jfbrown/golang \
+  go run server.go

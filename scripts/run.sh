@@ -12,35 +12,22 @@ if [ $# -lt 1 ]; then
 fi
 
 case "$1" in
-  'redis')
-    docker rm -f go_redis 2&> /dev/null
-
-    docker run -d \
-      --name go_redis \
-      dockerfile/redis
-    ;;
   'loader')
     docker run --rm -it \
-      --link go_redis:redis \
+      --link aegis_redis:redis \
       --link aegis:aegis \
       -v $(pwd):/data \
+      -h redisloader \
       dockerfile/ruby \
       bundle exec /usr/bin/ruby redis_loader.rb
     ;;
   'shell')
     docker run --rm -it \
-      --link go_redis:redis \
+      --link aegis_redis:redis \
       --link aegis:aegis \
       -v $(pwd):/data \
+      -h AEGISRUBY \
       dockerfile/ruby \
-      /bin/bash
-    ;;
-  'console')
-    docker run --rm -it \
-      --link go_redis:redis \
-      --link aegis:aegis \
-      -h REDISCLI \
-      dockerfile/redis \
       /bin/bash
     ;;
 esac

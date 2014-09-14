@@ -16,7 +16,7 @@ type (
 
 type Stats struct {
   Timestamp   int               `json:"timestamp"`
-  Elapsed     int               `json:"elapsed"`
+  Value       int               `json:"value"`
   Tags        []string          `json:"tags"`
   Meta        map[string]string `json:"meta"`
 }
