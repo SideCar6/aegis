@@ -17,6 +17,7 @@
     <![endif]-->
   </head>
   <body>
+    <button class="btn btn-primary" id="sender">Send message</button>
     <div class="container">
       <div class="row">
         <h1>Aegis</h1>
@@ -57,12 +58,20 @@
     <script src="//code.highcharts.com/stock/modules/exporting.js"></script>
 
     <script>
-      var socket = io();
+      var connection = new WebSocket('ws://localhost:3000/websockets');
+      connection.onopen = function () {
+        connection.send('Ping');
+      };
+      connection.onerror = function (error) {
+        console.log("Oops. The web socket fucked up... ", error);
+      };
+      connection.onmessage = function (e) {
+        console.log("Server says: ");
+        console.log(JSON.parse(e.data));
+      };
 
-      socket.on('message', function(msg){
-        console.log('message received: ' + msg);
-
-        $('#messages').append($('<li>').text(msg));
+      $('#sender').click( function () {
+        connection.send("Ping");
       });
 
       $.get('/api/v1/keys', function (data) {

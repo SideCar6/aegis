@@ -6,39 +6,16 @@ import (
   "strings"
   "net/url"
   "fmt"
-
-  "github.com/googollee/go-socket.io"
   "github.com/SideCar6/aegis/aegis_redis"
+  "code.google.com/p/go.net/websocket"
 )
 
 var chttp = http.NewServeMux()
 const api_url string = "/api/v1"
-// var c = make(chan string)
 
+var openSockets []*websocket.Conn
 func main() {
-
-  server, err := socketio.NewServer(nil)
-  if err != nil {
-    log.Fatal(err)
-  }
-  server.On("connection", func(so socketio.Socket) {
-    log.Println("on connection")
-    so.Emit("message", "You're connected via WebSockets.")
-    so.Join("aegis")
-
-    so.BroadcastTo("aegis", "message", "Client Connected via WebSockets!")
-
-    so.Leave("aegis")
-
-    so.On("disconnection", func() {
-      log.Println("on disconnect")
-    })
-  })
-  server.On("error", func(so socketio.Socket, err error) {
-    log.Println("error:", err)
-  })
-
-  http.Handle("/socket.io/", server)
+  http.Handle("/websockets", websocket.Handler(socketServer))
 
   chttp.Handle("/", http.FileServer(http.Dir("./public")))
 
@@ -75,6 +52,36 @@ func main() {
   log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
+func socketServer(ws *websocket.Conn) {
+  fmt.Println("New connection")
+  openSockets = append(openSockets, ws)
+  buf := make([]byte, 100)
+  for {
+    mess, err := ws.Read(buf)
+    if err == nil {
+      fmt.Println(string(buf[0:mess]))
+      continue
+    }
+
+    for i, s := range openSockets {
+      if ws != s {
+        continue
+      } else {
+        openSockets = append(openSockets[:i], openSockets[i + 1:]...)
+      }
+    }
+    fmt.Println("%s", err.Error())
+    break
+  }
+  fmt.Println("Closing connection")
+}
+
+func sendMessage(msg string) {
+  for _, ws := range openSockets {
+    ws.Write([]byte(msg))
+  }
+}
+
 func getStats(w http.ResponseWriter, r *http.Request) {
   qs := r.URL.Query()
   key, _ := url.QueryUnescape(qs.Get("key"))
@@ -92,6 +99,7 @@ func postStats(w http.ResponseWriter, r *http.Request) {
 
   aegis_redis.SetKey(key, body)
   w.WriteHeader(201)
+  sendMessage("{\"" + key + "\":" + body + "}")
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
