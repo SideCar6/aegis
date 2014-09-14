@@ -1,13 +1,12 @@
-// example program
-
 package aegis_redis
 
 import (
   "fmt"
-  "github.com/fzzy/radix/redis"
   "os"
   "time"
   "encoding/json"
+
+  "github.com/fzzy/radix/redis"
 )
 
 type (
@@ -54,6 +53,19 @@ func GetKeys() Keys {
   log("GetKeys", keys)
 
   return keys
+}
+
+func SetKey(key string, value string) bool {
+  rdis := connect()
+  defer rdis.Close()
+
+  r := rdis.Cmd("select", 0)
+  errHndlr(r.Err)
+
+  r = rdis.Cmd("rpush", key, value)
+  errHndlr(r.Err)
+
+  return true
 }
 
 func GetList(key string, start int32, stop int32) List {
