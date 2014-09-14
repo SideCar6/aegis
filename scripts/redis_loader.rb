@@ -4,14 +4,14 @@ require 'json'
 
 paths = [
   'GET:/api/v1/users/:id',
-  'POST:/api/v1/users',
-  'PUT:/api/v1/users/:id',
-  'DELETE:/api/v1/users/:id',
-  'PATCH:/api/v1/users/:id',
-  'GET:/api/v1/users/:user_id/cars/:id',
-  'GET:/api/v2/cars',
-  'GET:/',
-  'POST:/accounts/:account_id/users/:id',
+  # 'POST:/api/v1/users',
+  # 'PUT:/api/v1/users/:id',
+  # 'DELETE:/api/v1/users/:id',
+  # 'PATCH:/api/v1/users/:id',
+  # 'GET:/api/v1/users/:user_id/cars/:id',
+  # 'GET:/api/v2/cars',
+  # 'GET:/',
+  # 'POST:/accounts/:account_id/users/:id',
 ]
 
 url = "http://%s:%s/api/v1/stats" % [ENV['AEGIS_PORT_3000_TCP_ADDR'], 3000]
@@ -22,7 +22,7 @@ loop do
   tag = "query-%s" % rand(10)
 
   payload = {
-    timestamp: Time.now.to_i,
+    timestamp: "%s.%s" % [ Time.now.to_i, Time.now.strftime("%L")],
     elapsed: elapsed,
     tags: [
       'api_call',
@@ -39,7 +39,7 @@ loop do
 
   HTTParty.post(url, query: query)
 
-  s = rand
+  s = 0.1#rand
 
   if s > 0.8
     path = "system:load:#{`hostname`.chomp}"

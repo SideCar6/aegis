@@ -7,7 +7,7 @@
     <title>Aegis</title>
 
     <!-- Bootstrap -->
-    <link href="css/lib/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -18,29 +18,44 @@
   </head>
   <body>
     <div class="container">
-      <h1>Aegis</h1>
+      <div class="row">
+        <h1>Aegis</h1>
+      </div>
     </div>
 
     <div class="container">
-      <ul id="messages" class="list-unstyled"></ul>
+      <div class="row">
+        <div class="col-xs-4">
+          <ul id="messages" class="list-unstyled"></ul>
+        </div>
+        <div class="col-xs-8">
+        </div>
     </div>
 
     <div class="container">
-      <ul id="keys" class="list-unstyled">
+      <div class="row">
+        <div class="col-xs-4">
+          <ul id="keys" class="nav nav-pills nav-stacked"></ul>
+        </div>
+        <div class="col-xs-8">
+          <div id="chart"></div>
+        </div>
+    </div>
 
-      </ul>
+    <div class="container">
       <div id="speed">
         Speed:
         <ul></ul>
       </div>
     </div>
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/lib/bootstrap.min.js"></script>
-    <script src="js/lib/Chart.js"></script>
-    <script src="js/lib/socket.io.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="//cdn.socket.io/socket.io-1.0.0.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.2/moment.min.js"></script>
+    <script src="//code.highcharts.com/stock/highstock.js"></script>
+    <script src="//code.highcharts.com/stock/modules/exporting.js"></script>
+
     <script>
       var socket = io();
 
@@ -54,52 +69,57 @@
         $.each(data, function (i, key) {
           var id = 'key' + i;
           $('#keys').append('<li class="key" id="' + id +
-            '"><button type="button" class="btn btn-primary">' + key + '</button><ul></ul><canvas id="' + id + '-chart" width="400" height="400"></canvas></li>');
+            '"><a href="javascript:void(0);">' + key + '</a></li>');
         });
       });
 
       $('#keys').delegate('li.key', 'click', function () {
-        var key = $(this).find('button').html();
+
+        // set the chart dimensions
+        $("#chart").attr("width", $("#chart").parent().width());
+        $("#chart").attr("height", window.innerHeight);
+
+        // set vars
+        var key = $(this).find('a').html();
         var list = $(this).find('ul')[0];
         var id = $(list).siblings('canvas').attr('id');
 
-        if ($(list).find('li').length) {
-          $(list).empty();
-        } else {
-          $.get('/api/v1/stats?key=' + encodeURIComponent(key), function (data) {
-            var times = [];
-            var labels = [];
+        $.get('/api/v1/stats?key=' + encodeURIComponent(key), function (dataSet) {
+          var times = [];
 
-            data.sort( function (a, b) {
-              return a.timestamp - b.timestamp;
-            });
-
-            $.each(data, function (i, item) {
-              times.push(item.elapsed);
-              labels.push(item.timestamp - data[0].timestamp);
-              // $(list).append('<li>' + JSON.stringify(item) + '</li>');
-            });
-
-            var set = {
-              labels: labels,
-              datasets: [
-                {
-                  label: "My First dataset",
-                  fillColor: "rgba(220,220,220,0.2)",
-                  strokeColor: "rgba(220,220,220,1)",
-                  pointColor: "rgba(220,220,220,1)",
-                  pointStrokeColor: "#fff",
-                  pointHighlightFill: "#fff",
-                  pointHighlightStroke: "rgba(220,220,220,1)",
-                  data: times
-                }
-              ]
-            };
-
-            var ctx = document.getElementById(id).getContext("2d");
-            var lineChart = new Chart(ctx).Line(set, {});
+          dataSet.sort( function (a, b) {
+            return a.timestamp - b.timestamp;
           });
-        }
+
+          $.each(dataSet, function (i, item) {
+            times.push([
+              item.timestamp,
+              item.elapsed,
+            ]);
+          });
+
+          // Create the chart
+          $('#chart').highcharts('StockChart', {
+            chart: {
+              height: Math.round(window.innerHeight * 0.8),
+            },
+            rangeSelector : {
+              selected : 1,
+              inputEnabled: $('#chart').width() > 480
+            },
+            title : {
+              text : key,
+            },
+            series : [{
+              name : "response time",
+              data : times,
+              tooltip: {
+                valueDecimals: 0,
+                valueSuffix: 'ms',
+              }
+            }]
+          });
+        });
       });
     </script>
   </body>

@@ -13,16 +13,22 @@ import (
 
 var chttp = http.NewServeMux()
 const api_url string = "/api/v1"
+// var c = make(chan string)
 
 func main() {
+
   server, err := socketio.NewServer(nil)
   if err != nil {
     log.Fatal(err)
   }
   server.On("connection", func(so socketio.Socket) {
     log.Println("on connection")
+    so.Emit("message", "You're connected via WebSockets.")
+    so.Join("aegis")
 
-    so.Emit("message", "test message")
+    so.BroadcastTo("aegis", "message", "Client Connected via WebSockets!")
+
+    so.Leave("aegis")
 
     so.On("disconnection", func() {
       log.Println("on disconnect")
@@ -58,8 +64,11 @@ func main() {
   http.HandleFunc(api_url + "/stats", func(w http.ResponseWriter, r *http.Request) {
     log.Println(r.Method)
     switch r.Method {
-      case "GET": getStats(w, r)
-      case "POST": postStats(w, r)
+      case "GET":
+        getStats(w, r)
+      case "POST":
+        postStats(w, r)
+
     }
   })
 
