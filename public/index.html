@@ -58,7 +58,8 @@
     <script src="//code.highcharts.com/stock/modules/exporting.js"></script>
 
     <script>
-      var connection = new WebSocket('ws://localhost:3000/websockets');
+      var activeKey, chart;
+      var connection = new WebSocket('ws://' + window.location.host + '/websockets');
       connection.onopen = function () {
         connection.send('Ping');
       };
@@ -66,8 +67,12 @@
         console.log("Oops. The web socket fucked up... ", error);
       };
       connection.onmessage = function (e) {
-        console.log("Server says: ");
-        console.log(JSON.parse(e.data));
+        var newData = JSON.parse(e.data);
+        if (newData[activeKey]) {
+          var obj = newData[activeKey];
+          var chart = $('#chart').highcharts();
+          chart.series[0].addPoint([obj.timestamp, obj.value])
+        }
       };
 
       $('#sender').click( function () {
@@ -92,13 +97,12 @@
         $("#chart").attr("height", window.innerHeight);
 
         // set vars
-        var key = $(this).find('a').html();
+        activeKey = $(this).find('a').html();
         var list = $(this).find('ul')[0];
         var id = $(list).siblings('canvas').attr('id');
 
-        $.get('/api/v1/stats?key=' + encodeURIComponent(key), function (dataSet) {
+        $.get('/api/v1/stats?key=' + encodeURIComponent(activeKey), function (dataSet) {
           var times = [];
-          console.log(dataSet)
 
           dataSet.sort( function (a, b) {
             return a.timestamp - b.timestamp;
@@ -112,7 +116,7 @@
           });
 
           // Create the chart
-          $('#chart').highcharts('StockChart', {
+          chart = $('#chart').highcharts('StockChart', {
             chart: {
               height: Math.round(window.innerHeight * 0.8),
             },
@@ -121,7 +125,7 @@
               inputEnabled: $('#chart').width() > 480
             },
             title : {
-              text : key,
+              text : activeKey,
             },
             series : [{
               name : dataSet[0].meta["name"],

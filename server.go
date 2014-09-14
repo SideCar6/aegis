@@ -14,6 +14,7 @@ var chttp = http.NewServeMux()
 const api_url string = "/api/v1"
 
 var openSockets []*websocket.Conn
+
 func main() {
   http.Handle("/websockets", websocket.Handler(socketServer))
 
