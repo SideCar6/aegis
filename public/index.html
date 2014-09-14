@@ -32,16 +32,6 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/lib/bootstrap.min.js"></script>
     <script>
-      // $('#speed').click( function () {
-      //   var list = $(this).find('ul')[0];
-      //   $(this).off();
-      //   $.get('/api/v1/speed', function (data) {
-      //     $.each(JSON.parse(data), function (i, item) {
-      //       $(list).append('<li>' + item + '</li>');
-      //     })
-      //   });
-      // });
-        
       $.get('/api/v1/keys', function (data) {
         $.each(JSON.parse(data), function (i, key) {
           var id = 'key' + i;
@@ -50,15 +40,18 @@
         });
       });
 
-      $('#keys').delegate('li', 'click', function (event) {
-        console.log('li clicked');
-        console.log(event);
+      $('#keys').delegate('li', 'click', function () {
+        var key = $(this).find('button').html();
         var list = $(this).find('ul')[0];
-        $.get('/api/v1/stats/' + event.target.id, function (data) {
-          $.each(JSON.parse(data), function (i, item) {
-            list.append('<li>' + item + '</li>');
+        if ($(list).find('li').length) {
+          $(list).empty();
+        } else {
+          $.get('/api/v1/stats?key=' + encodeURIComponent(key), function (data) {
+            $.each(JSON.parse(data), function (i, item) {
+              $(list).append('<li>' + item + '</li>');
+            });
           });
-        });
+        }
       });
     </script>
   </body>

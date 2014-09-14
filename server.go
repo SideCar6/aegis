@@ -3,7 +3,8 @@ package main
 import (
   "github.com/go-martini/martini"
   "./aegis_redis"
-  // "encoding/json"
+  "net/http"
+  "net/url"
 )
 
 const api_url string = "/api/v1"
@@ -17,18 +18,16 @@ func main() {
   m.Get("/test", func () string {
     return "Test"
   })
-  // m.Get(api_url + "/speed", func () []byte {
-  //   j, _ := json.Marshal(aegis_redis.Test())
-  //   return j
-  // })
 
   m.Get(api_url + "/keys", func () []byte {
     keys := aegis_redis.GetKeys()
     return keys.ToJSON()
   })
 
-  m.Get(api_url + "/stats/:key", func (params martini.Params) []byte {
-    stats := aegis_redis.GetList(params["key"], 0, -1)
+  m.Get(api_url + "/stats", func (r *http.Request) []byte {
+    qs := r.URL.Query()
+    key, _ := url.QueryUnescape(qs.Get("key"))
+    stats := aegis_redis.GetList(key, 0, -1)
     return stats.ToJSON()
   })
 
