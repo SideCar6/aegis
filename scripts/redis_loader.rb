@@ -14,6 +14,8 @@ paths = [
   'POST:/accounts/:account_id/users/:id',
 ]
 
+url = "http://%s:%s/api/v1/stats" % [ENV['AEGIS_PORT_3000_TCP_ADDR'], 3000]
+
 loop do
   path = paths[rand(paths.length)]
   elapsed = rand(1000)
@@ -35,7 +37,7 @@ loop do
     value: payload,
   }
 
-  HTTParty.get(ENV['GO_PORT_3000_TCP_ADDR'], port: 3000, query: query)
+  HTTParty.post(url, query: query)
 
   s = rand
 
@@ -54,7 +56,7 @@ loop do
       },
     }.to_json
 
-    HTTParty.get(ENV['GO_PORT_3000_TCP_ADDR'], port: 3000, query: {
+    HTTParty.post(url, query: {
       key: path,
       value: payload,
     })

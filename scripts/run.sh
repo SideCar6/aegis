@@ -22,6 +22,7 @@ case "$1" in
   'loader')
     docker run --rm -it \
       --link go_redis:redis \
+      --link aegis:aegis \
       -v $(pwd):/data \
       dockerfile/ruby \
       bundle exec /usr/bin/ruby redis_loader.rb
@@ -29,6 +30,7 @@ case "$1" in
   'shell')
     docker run --rm -it \
       --link go_redis:redis \
+      --link aegis:aegis \
       -v $(pwd):/data \
       dockerfile/ruby \
       /bin/bash
@@ -36,6 +38,7 @@ case "$1" in
   'console')
     docker run --rm -it \
       --link go_redis:redis \
+      --link aegis:aegis \
       -h REDISCLI \
       dockerfile/redis \
       /bin/bash
