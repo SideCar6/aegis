@@ -1,47 +1,38 @@
 package main
 
 import (
+  "log"
   "net/http"
-  "net/url"
-  "fmt"
 
-  "github.com/go-martini/martini"
-  "github.com/SideCar6/aegis/aegis_redis"
+  "github.com/googollee/go-socket.io"
 )
 
-const api_url string = "/api/v1"
-
 func main() {
-  m := martini.Classic()
+  server, err := socketio.NewServer(nil)
+  if err != nil {
+    log.Fatal(err)
+  }
+  server.On("connection", func(so socketio.Socket) {
+    log.Println("on connection")
 
-  m.Get("/hello", func () string {
-    return "Hello"
+    go func() {
+      so.Emit("message", "test message")
+
+      return
+    }()
+
+    so.On("disconnection", func() {
+      log.Println("on disconnect")
+    })
   })
-  m.Get("/test", func () string {
-    return "Test"
-  })
-
-  m.Get(api_url + "/keys", func () []byte {
-    keys := aegis_redis.GetKeys()
-    return keys.ToJSON()
-  })
-
-  m.Get(api_url + "/stats", func (r *http.Request) []byte {
-    qs := r.URL.Query()
-    key, _ := url.QueryUnescape(qs.Get("key"))
-    stats := aegis_redis.GetList(key, 0, -1)
-    return stats.ToJSON()
-  })
-
-  m.Post(api_url + "/keys", func(r *http.Request) (int, string) {
-    r.ParseForm()
-    body := r.Form["value"][0]
-    key := r.Form["key"][0]
-    fmt.Println(body, key)
-
-    aegis_redis.SetKey(key, body)
-    return 200, "OK"
+  server.On("error", func(so socketio.Socket, err error) {
+    log.Println("error:", err)
   })
 
-  m.Run()
+  http.Handle("/socket.io/", server)
+  http.Handle("/", http.FileServer(http.Dir("./public")))
+
+
+  log.Println("Serving at localhost:3000...")
+  log.Fatal(http.ListenAndServe(":3000", nil))
 }

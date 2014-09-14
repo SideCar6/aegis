@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap 101 Template</title>
+    <title>Aegis</title>
 
     <!-- Bootstrap -->
     <link href="css/lib/bootstrap.min.css" rel="stylesheet">
@@ -18,11 +18,19 @@
   </head>
   <body>
     <div class="container">
+      <h1>Aegis</h1>
+    </div>
+
+    <div class="container">
+      <ul id="messages" class="list-unstyled"></ul>
+    </div>
+
+    <div class="container">
       <ul id="keys">
 
       </ul>
       <div id="speed">
-        Speed: 
+        Speed:
         <ul></ul>
       </div>
     </div>
@@ -32,12 +40,21 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/lib/bootstrap.min.js"></script>
     <script src="js/lib/Chart.js"></script>
+    <script src="js/lib/socket.io.js"></script>
     <script>
+      var socket = io();
+
+      socket.on('message', function(msg){
+        console.log('message received: ' + msg);
+
+        $('#messages').append($('<li>').text(msg));
+      });
+
       $.get('/api/v1/keys', function (data) {
         $.each(JSON.parse(data), function (i, key) {
           var id = 'key' + i;
-          $('#keys').append('<li class="key" id="' + id + 
-            '"><button type="button" class="btn btn-primary">' + key + '</button><ul></ul><canvas id="' + id + '-chart" width="400" height="400"></canvas></li>');
+          $('#keys').append('<li class="key" id="' + id +
+            '"><button type="button" class="btn btn-primary">' + key + '</button><ul></ul><canvas id="' + id + '-chart" width="1000" height="400"></canvas></li>');
         });
       });
 
@@ -45,7 +62,7 @@
         var key = $(this).find('button').html();
         var list = $(this).find('ul')[0];
         var id = $(list).siblings('canvas').attr('id');
-        
+
         if ($(list).find('li').length) {
           $(list).empty();
         } else {
@@ -60,7 +77,7 @@
             dataSet.sort( function (a, b) {
               return a.timestamp - b.timestamp;
             });
-            
+
             $.each(dataSet, function (i, item) {
               times.push(item.elapsed);
               labels.push(item.timestamp - dataSet[0].timestamp);
