@@ -31,25 +31,60 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/lib/bootstrap.min.js"></script>
+    <script src="js/lib/Chart.js"></script>
     <script>
       $.get('/api/v1/keys', function (data) {
         $.each(JSON.parse(data), function (i, key) {
           var id = 'key' + i;
           $('#keys').append('<li class="key" id="' + id + 
-            '"><button type="button" class="btn btn-primary">' + key + '</button><ul></ul></li>');
+            '"><button type="button" class="btn btn-primary">' + key + '</button><ul></ul><canvas id="' + id + '-chart" width="400" height="400"></canvas></li>');
         });
       });
 
-      $('#keys').delegate('li', 'click', function () {
+      $('#keys').delegate('li.key', 'click', function () {
         var key = $(this).find('button').html();
         var list = $(this).find('ul')[0];
+        var id = $(list).siblings('canvas').attr('id');
+        
         if ($(list).find('li').length) {
           $(list).empty();
         } else {
           $.get('/api/v1/stats?key=' + encodeURIComponent(key), function (data) {
-            $.each(JSON.parse(data), function (i, item) {
-              $(list).append('<li>' + item + '</li>');
+            var dataSet = JSON.parse(data);
+            var times = [];
+            var labels = [];
+            for (var i = 0; i < dataSet.length; i++) {
+              dataSet[i] = JSON.parse(dataSet[i]);
+            }
+
+            dataSet.sort( function (a, b) {
+              return a.timestamp - b.timestamp;
             });
+            
+            $.each(dataSet, function (i, item) {
+              times.push(item.elapsed);
+              labels.push(item.timestamp - dataSet[0].timestamp);
+              // $(list).append('<li>' + JSON.stringify(item) + '</li>');
+            });
+
+            var set = {
+              labels: labels,
+              datasets: [
+                {
+                  label: "My First dataset",
+                  fillColor: "rgba(220,220,220,0.2)",
+                  strokeColor: "rgba(220,220,220,1)",
+                  pointColor: "rgba(220,220,220,1)",
+                  pointStrokeColor: "#fff",
+                  pointHighlightFill: "#fff",
+                  pointHighlightStroke: "rgba(220,220,220,1)",
+                  data: times
+                }
+              ]
+            };
+
+            var ctx = document.getElementById(id).getContext("2d");
+            var lineChart = new Chart(ctx).Line(set, {});
           });
         }
       });
