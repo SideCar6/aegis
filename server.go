@@ -22,11 +22,7 @@ func main() {
   server.On("connection", func(so socketio.Socket) {
     log.Println("on connection")
 
-    go func() {
-      so.Emit("message", "test message")
-
-      return
-    }()
+    so.Emit("message", "test message")
 
     so.On("disconnection", func() {
       log.Println("on disconnect")
@@ -54,6 +50,7 @@ func main() {
 
   http.HandleFunc(api_url + "/keys/", func(w http.ResponseWriter, r *http.Request) {
     keys := aegis_redis.GetKeys()
+    w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(200)
     w.Write(keys.ToJSON())
   })
@@ -73,6 +70,7 @@ func getStats(w http.ResponseWriter, r *http.Request) {
   qs := r.URL.Query()
   key, _ := url.QueryUnescape(qs.Get("key"))
   stats := aegis_redis.GetList(key, 0, -1)
+  w.Header().Set("Content-Type", "application/json")
   w.WriteHeader(200)
   w.Write(stats.ToJSON())
 }

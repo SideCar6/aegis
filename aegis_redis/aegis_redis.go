@@ -14,6 +14,15 @@ type (
   List []string
 )
 
+type Stats struct {
+  Timestamp   int               `json:"timestamp"`
+  Elapsed     int               `json:"elapsed"`
+  Tags        []string          `json:"tags"`
+  Meta        map[string]string `json:"meta"`
+}
+
+type StatsList []Stats
+
 func (keys Keys) ToJSON() []byte {
   j, err := json.Marshal(keys)
   errHndlr(err)
@@ -21,8 +30,8 @@ func (keys Keys) ToJSON() []byte {
   return j
 }
 
-func (list List) ToJSON() []byte {
-  j, err := json.Marshal(list)
+func (stats StatsList) ToJSON() []byte {
+  j, err := json.Marshal(stats)
   errHndlr(err)
 
   return j
@@ -68,7 +77,7 @@ func SetKey(key string, value string) bool {
   return true
 }
 
-func GetList(key string, start int32, stop int32) List {
+func GetList(key string, start int32, stop int32) StatsList {
   rdis := connect()
   defer rdis.Close()
 
@@ -80,7 +89,15 @@ func GetList(key string, start int32, stop int32) List {
   errHndlr(err)
   log("GetList", list)
 
-  return list
+  stats := make(StatsList, len(list), len(list))
+
+  for i, l := range list {
+    s :=  Stats{}
+    json.Unmarshal([]byte(l), &s)
+    stats[i] = s
+  }
+
+  return stats
 }
 
 func connect() *redis.Client {

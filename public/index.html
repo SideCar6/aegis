@@ -51,7 +51,7 @@
       });
 
       $.get('/api/v1/keys', function (data) {
-        $.each(JSON.parse(data), function (i, key) {
+        $.each(data, function (i, key) {
           var id = 'key' + i;
           $('#keys').append('<li class="key" id="' + id +
             '"><button type="button" class="btn btn-primary">' + key + '</button><ul></ul><canvas id="' + id + '-chart" width="400" height="400"></canvas></li>');
@@ -67,20 +67,16 @@
           $(list).empty();
         } else {
           $.get('/api/v1/stats?key=' + encodeURIComponent(key), function (data) {
-            var dataSet = JSON.parse(data);
             var times = [];
             var labels = [];
-            for (var i = 0; i < dataSet.length; i++) {
-              dataSet[i] = JSON.parse(dataSet[i]);
-            }
 
-            dataSet.sort( function (a, b) {
+            data.sort( function (a, b) {
               return a.timestamp - b.timestamp;
             });
 
-            $.each(dataSet, function (i, item) {
+            $.each(data, function (i, item) {
               times.push(item.elapsed);
-              labels.push(item.timestamp - dataSet[0].timestamp);
+              labels.push(item.timestamp - data[0].timestamp);
               // $(list).append('<li>' + JSON.stringify(item) + '</li>');
             });
 
