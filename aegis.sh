@@ -10,6 +10,9 @@ if [ $# -lt 1 ]; then
 fi
 
 case "$1" in
+  'build')
+    docker build -t sidecar6/aegis . && docker push sidecar master
+    ;;
   'stop')
     docker rm -f aegis 2&> /dev/null
     ;;
@@ -18,6 +21,7 @@ case "$1" in
       --name aegis_redis \
       dockerfile/redis
 
+    docker pull sidecar6/aegis
     docker run -it --rm \
       --name aegis \
       --link aegis_redis:redis \
