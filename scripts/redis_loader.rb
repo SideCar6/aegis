@@ -1,10 +1,6 @@
-require 'redis'
+require 'httparty'
 require 'json'
 
-redis = Redis.new({
-  host: ENV['REDIS_PORT_6379_TCP_ADDR'],
-  port: ENV['REDIS_PORT_6389_TCP_PORT'],
-})
 
 paths = [
   'GET:/api/v1/users/:id',
@@ -23,7 +19,7 @@ loop do
   elapsed = rand(1000)
   tag = "query-%s" % rand(10)
 
-  redis.rpush(path, {
+  payload = {
     timestamp: Time.now.to_i,
     elapsed: elapsed,
     tags: [
@@ -32,13 +28,21 @@ loop do
     meta: {
       query: 'SELECT * FROM somethings ORDER BY something_else DESC',
     },
-  }.to_json)
-  redis.ltrim(path, -99, -1)
+  }.to_json
+
+  query = {
+    key: path,
+    value: payload,
+  }
+
+  HTTParty.get(ENV['GO_PORT_3000_TCP_ADDR'], port: 3000, query: query)
 
   s = rand
 
   if s > 0.8
-    redis.rpush("system:load:#{`hostname`.chomp}", {
+    path = "system:load:#{`hostname`.chomp}"
+
+    payload = {
       timestamp: Time.now.to_i,
       value: `cat /proc/loadavg`.split(" ")[0],
       tags: [
@@ -48,10 +52,14 @@ loop do
         host: `hostname`.chomp,
         time: Time.now.to_s,
       },
-    }.to_json)
+    }.to_json
+
+    HTTParty.get(ENV['GO_PORT_3000_TCP_ADDR'], port: 3000, query: {
+      key: path,
+      value: payload,
+    })
   end
 
   puts "sleeping for %s seconds..." % s
   sleep(s)
 end
-
