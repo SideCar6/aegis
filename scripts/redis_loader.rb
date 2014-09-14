@@ -14,7 +14,7 @@ paths = [
   'POST:/accounts/:account_id/users/:id',
 ]
 
-url = "http://%s:%s/api/v1/stats" % [ENV['AEGIS_PORT_3000_TCP_ADDR'], 3000]
+url = "http://%s:%s/api/v1/stats" % [ENV['AEGIS_PORT_3000_TCP_ADDR'] || "127.0.0.1", 3000]
 
 res_time = 500
 loop do

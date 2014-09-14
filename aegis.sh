@@ -21,7 +21,7 @@ case "$1" in
       --name aegis_redis \
       dockerfile/redis
 
-    docker pull sidecar6/aegis
+    docker pull sidecar6/aegis:latest
     docker run -it --rm \
       --name aegis \
       --link aegis_redis:redis \
@@ -35,7 +35,6 @@ case "$1" in
   'redis-shell')
     docker run --rm -it \
       --link aegis_redis:redis \
-      --link aegis:aegis \
       -h REDISCLI \
       dockerfile/redis \
       /bin/bash
