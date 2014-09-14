@@ -1,8 +1,9 @@
 package main
 
 import (
-  "./aegis_redis"
   "fmt"
+
+  "github.com/SideCar6/aegis/aegis_redis"
 )
 
 func main() {
