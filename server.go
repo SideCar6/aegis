@@ -50,6 +50,10 @@ func main() {
     }
   })
 
+  fmt.Println("  ___")
+  fmt.Println("//   \\\\ AEGIS")
+  fmt.Println("\\\\___// STATS\n")
+  fmt.Println("[ AEGIS ]\tServer started, listening on port 3000")
   log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
