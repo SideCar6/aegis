@@ -18,6 +18,9 @@ func main() {
   // http.Handle("/websockets", websocket.Handler(socketServer))
   http.HandleFunc("/websockets", serveWs)
 
+  // Run websocket hub
+  go h.run()
+
   chttp.Handle("/", http.FileServer(http.Dir("./public")))
 
   http.HandleFunc("/", HomeHandler)
