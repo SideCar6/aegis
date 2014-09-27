@@ -7,16 +7,16 @@ import (
   "net/url"
   "fmt"
   "github.com/SideCar6/aegis/aegis_redis"
-  "code.google.com/p/go.net/websocket"
 )
 
 var chttp = http.NewServeMux()
 const api_url string = "/api/v1"
 
-var openSockets []*websocket.Conn
+// var openSockets []*websocket.Conn
 
 func main() {
-  http.Handle("/websockets", websocket.Handler(socketServer))
+  // http.Handle("/websockets", websocket.Handler(socketServer))
+  http.HandleFunc("/websockets", serveWs)
 
   chttp.Handle("/", http.FileServer(http.Dir("./public")))
 
@@ -57,35 +57,35 @@ func main() {
   log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
-func socketServer(ws *websocket.Conn) {
-  fmt.Println("New connection")
-  openSockets = append(openSockets, ws)
-  buf := make([]byte, 100)
-  for {
-    mess, err := ws.Read(buf)
-    if err == nil {
-      fmt.Println(string(buf[0:mess]))
-      continue
-    }
+// func socketServer(ws *websocket.Conn) {
+//   fmt.Println("New connection")
+//   openSockets = append(openSockets, ws)
+//   buf := make([]byte, 100)
+//   for {
+//     mess, err := ws.Read(buf)
+//     if err == nil {
+//       fmt.Println(string(buf[0:mess]))
+//       continue
+//     }
 
-    for i, s := range openSockets {
-      if ws != s {
-        continue
-      } else {
-        openSockets = append(openSockets[:i], openSockets[i + 1:]...)
-      }
-    }
-    fmt.Println("%s", err.Error())
-    break
-  }
-  fmt.Println("Closing connection")
-}
+//     for i, s := range openSockets {
+//       if ws != s {
+//         continue
+//       } else {
+//         openSockets = append(openSockets[:i], openSockets[i + 1:]...)
+//       }
+//     }
+//     fmt.Println("%s", err.Error())
+//     break
+//   }
+//   fmt.Println("Closing connection")
+// }
 
-func sendMessage(msg string) {
-  for _, ws := range openSockets {
-    ws.Write([]byte(msg))
-  }
-}
+// func sendMessage(msg string) {
+//   for _, ws := range openSockets {
+//     ws.Write([]byte(msg))
+//   }
+// }
 
 func getStats(w http.ResponseWriter, r *http.Request) {
   qs := r.URL.Query()
@@ -104,7 +104,7 @@ func postStats(w http.ResponseWriter, r *http.Request) {
 
   aegis_redis.SetKey(key, body)
   w.WriteHeader(201)
-  sendMessage("{\"" + key + "\":" + body + "}")
+  h.broadcast <- []byte("{\"" + key + "\":" + body + "}")
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
