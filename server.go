@@ -12,10 +12,7 @@ import (
 var chttp = http.NewServeMux()
 const api_url string = "/api/v1"
 
-// var openSockets []*websocket.Conn
-
 func main() {
-  // http.Handle("/websockets", websocket.Handler(socketServer))
   http.HandleFunc("/websockets", serveWs)
 
   // Run websocket hub
@@ -59,36 +56,6 @@ func main() {
   fmt.Println("[ AEGIS ]\tServer started, listening on port 3000")
   log.Fatal(http.ListenAndServe(":3000", nil))
 }
-
-// func socketServer(ws *websocket.Conn) {
-//   fmt.Println("New connection")
-//   openSockets = append(openSockets, ws)
-//   buf := make([]byte, 100)
-//   for {
-//     mess, err := ws.Read(buf)
-//     if err == nil {
-//       fmt.Println(string(buf[0:mess]))
-//       continue
-//     }
-
-//     for i, s := range openSockets {
-//       if ws != s {
-//         continue
-//       } else {
-//         openSockets = append(openSockets[:i], openSockets[i + 1:]...)
-//       }
-//     }
-//     fmt.Println("%s", err.Error())
-//     break
-//   }
-//   fmt.Println("Closing connection")
-// }
-
-// func sendMessage(msg string) {
-//   for _, ws := range openSockets {
-//     ws.Write([]byte(msg))
-//   }
-// }
 
 func getStats(w http.ResponseWriter, r *http.Request) {
   qs := r.URL.Query()
